@@ -33,7 +33,6 @@ A Discord analytics bot that tracks server activity, visualizes stats as charts,
 |---|---|
 | `/word <term> [days]` | Who uses a word or phrase the most |
 | `/emoji <emoji> [days]` | Who uses a specific emoji the most |
-| `/sticker <sticker_id> [days]` | Who uses a specific sticker the most |
 | `/top-stickers [days]` | Most used stickers server-wide |
 | `/social-graph [days]` | Network graph of who interacts with who |
 
