@@ -10,6 +10,8 @@ A Discord analytics bot that tracks server activity, visualizes stats as charts,
 - **Emoji tracking** — tracks both custom and unicode emoji usage in messages and reactions
 - **Voice tracking** — records VC session durations per user
 - **Word tracking** — monitors configurable keywords and phrases
+- **Sticker tracking** — tracks sticker usage per user and server-wide
+- **Social graph** — visualizes who interacts with who via replies and mentions
 - **Chart generation** — dark-themed charts rendered with matplotlib/seaborn
 - **ML insights** — activity prediction, behavior clustering, anomaly detection, and emoji trend analysis
 
@@ -31,6 +33,9 @@ A Discord analytics bot that tracks server activity, visualizes stats as charts,
 |---|---|
 | `/word <term> [days]` | Who uses a word or phrase the most |
 | `/emoji <emoji> [days]` | Who uses a specific emoji the most |
+| `/sticker <sticker_id> [days]` | Who uses a specific sticker the most |
+| `/top-stickers [days]` | Most used stickers server-wide |
+| `/social-graph [days]` | Network graph of who interacts with who |
 
 ### ML Insights
 | Command | Description |
@@ -132,6 +137,27 @@ CREATE TABLE ml_predictions (
 );
 
 CREATE INDEX idx_ml_guild_type ON ml_predictions (guild_id, prediction_type);
+
+CREATE TABLE sticker_hits (
+    id           BIGSERIAL PRIMARY KEY,
+    guild_id     BIGINT NOT NULL,
+    channel_id   BIGINT NOT NULL,
+    user_id      BIGINT NOT NULL,
+    sticker_id   BIGINT NOT NULL,
+    sticker_name TEXT,
+    hit_at       TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE user_interactions (
+    id          BIGSERIAL PRIMARY KEY,
+    guild_id    BIGINT NOT NULL,
+    channel_id  BIGINT NOT NULL,
+    from_user   BIGINT NOT NULL,
+    to_user     BIGINT NOT NULL,
+    hit_at      TIMESTAMPTZ NOT NULL
+);
+
+CREATE INDEX idx_interactions_guild ON user_interactions (guild_id);
 ```
 
 ### Running
@@ -149,6 +175,7 @@ python -m bot.main
 | Discord | discord.py 2.x |
 | Database | PostgreSQL + asyncpg |
 | Charts | matplotlib, seaborn |
+| Graph | networkx |
 | ML | scikit-learn, pandas, numpy |
 | Model persistence | joblib |
 
@@ -172,3 +199,5 @@ bot/
     ├── emoji_trends.py
     └── models/      # saved .joblib files (gitignored)
 ```
+
+> **Note:** The bot only tracks interactions from the moment it starts running — there is no backfill for historical messages.
