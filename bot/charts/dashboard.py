@@ -103,7 +103,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         hspace=0.58, wspace=0.32,
         left=0.04, right=0.95,
         top=0.91, bottom=0.06,
-        height_ratios=[1.1, 1, 1, 0.9]
+        height_ratios=[0.8, 1, 1, 0.8]
     )
 
     ax_heat     = fig.add_subplot(gs[0, :], zorder=2)
