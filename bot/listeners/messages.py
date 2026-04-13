@@ -84,6 +84,40 @@ class MessageListener(commands.Cog):
                     hit_at=message.created_at,
                 )
 
+            for sticker in message.stickers:
+                await queries.insert_sticker_hit(
+                    guild_id=message.guild.id,
+                    channel_id=message.channel.id,
+                    user_id=message.author.id,
+                    sticker_id=sticker.id,
+                    sticker_name=sticker.name,
+                    hit_at=message.created_at,
+                )
+
+            # Track replies
+            if message.reference and message.reference.resolved:
+                ref = message.reference.resolved
+                if isinstance(ref, discord.Message) and ref.author and not ref.author.bot:
+                    if ref.author.id != message.author.id:
+                        await queries.insert_interaction(
+                            guild_id=message.guild.id,
+                            channel_id=message.channel.id,
+                            from_user=message.author.id,
+                            to_user=ref.author.id,
+                            hit_at=message.created_at,
+                        )
+
+            # Track mentions
+            for mentioned in message.mentions:
+                if not mentioned.bot and mentioned.id != message.author.id:
+                    await queries.insert_interaction(
+                        guild_id=message.guild.id,
+                        channel_id=message.channel.id,
+                        from_user=message.author.id,
+                        to_user=mentioned.id,
+                        hit_at=message.created_at,
+                    )
+
         except Exception as e:
             import traceback
             traceback.print_exc()

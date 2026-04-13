@@ -25,6 +25,8 @@ async def on_ready():
     await bot.load_extension("bot.listeners.voice")
     await bot.load_extension("bot.commands.vc")
     await bot.load_extension("bot.commands.ml_insights")
+    await bot.load_extension("bot.commands.stickers")
+    await bot.load_extension("bot.commands.social")
     synced = await bot.tree.sync()
     print(f"Logged in as {bot.user} — synced {len(synced)} commands")
 

@@ -164,6 +164,56 @@ async def get_vc_leaderboard(guild_id, days=30, limit=5):
         guild_id, str(days), limit
     )
 
+async def insert_sticker_hit(guild_id, channel_id, user_id, sticker_id, sticker_name, hit_at):
+    await get_pool().execute(
+        """INSERT INTO sticker_hits (guild_id, channel_id, user_id, sticker_id, sticker_name, hit_at)
+           VALUES ($1, $2, $3, $4, $5, $6)""",
+        guild_id, channel_id, user_id, sticker_id, sticker_name, hit_at
+    )
+
+async def get_top_stickers(guild_id, days=30, limit=10):
+    return await get_pool().fetch(
+        """SELECT sticker_id, sticker_name, COUNT(*) as count
+           FROM sticker_hits
+           WHERE guild_id = $1
+             AND hit_at >= NOW() - ($2 || ' days')::interval
+           GROUP BY sticker_id, sticker_name
+           ORDER BY count DESC
+           LIMIT $3""",
+        guild_id, str(days), limit
+    )
+
+async def get_sticker_top_users(guild_id, sticker_id, days=30, limit=10):
+    return await get_pool().fetch(
+        """SELECT user_id, COUNT(*) as count
+           FROM sticker_hits
+           WHERE guild_id = $1 AND sticker_id = $2
+             AND hit_at >= NOW() - ($3 || ' days')::interval
+           GROUP BY user_id
+           ORDER BY count DESC
+           LIMIT $4""",
+        guild_id, sticker_id, str(days), limit
+    )
+
+async def insert_interaction(guild_id, channel_id, from_user, to_user, hit_at):
+    await get_pool().execute(
+        """INSERT INTO user_interactions (guild_id, channel_id, from_user, to_user, hit_at)
+           VALUES ($1, $2, $3, $4, $5)""",
+        guild_id, channel_id, from_user, to_user, hit_at
+    )
+
+async def get_interactions(guild_id, days=30, limit=50):
+    return await get_pool().fetch(
+        """SELECT from_user, to_user, COUNT(*) as count
+           FROM user_interactions
+           WHERE guild_id = $1
+             AND hit_at >= NOW() - ($2 || ' days')::interval
+           GROUP BY from_user, to_user
+           ORDER BY count DESC
+           LIMIT $3""",
+        guild_id, str(days), limit
+    )
+
 async def insert_vc_session(guild_id, channel_id, user_id, joined_at, left_at, duration_seconds):
     await get_pool().execute(
         """INSERT INTO vc_sessions (guild_id, channel_id, user_id, joined_at, left_at, duration_seconds)
