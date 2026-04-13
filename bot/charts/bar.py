@@ -45,6 +45,7 @@ def _draw(labels, values, title, xlabel, bar_labels=None):
 
     ax.set_title(title, fontsize=13, pad=12, loc="center")
     ax.set_xlabel(xlabel, color=TEXT_DIM)
+    ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
     ax.margins(x=0.18)
     ax.set_xlim(left=-max(values) * 0.06)
 
