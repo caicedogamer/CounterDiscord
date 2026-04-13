@@ -100,10 +100,10 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
 
     gs = gridspec.GridSpec(
         4, 2, figure=fig,
-        hspace=0.58, wspace=0.32,
+        hspace=0.65, wspace=0.32,
         left=0.04, right=0.95,
         top=0.91, bottom=0.06,
-        height_ratios=[1.5, 1, 1, 0.7]
+        height_ratios=[1, 1, 1, 0.8]
     )
 
     ax_heat     = fig.add_subplot(gs[0, :], zorder=2)
@@ -135,6 +135,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         annot_kws={"size": 6, "color": TEXT, "alpha": 0.9},
         vmin=0,
     )
+    ax_heat.set_aspect("auto")
     for text in ax_heat.texts:
         if text.get_text() == "0":
             text.set_visible(False)
