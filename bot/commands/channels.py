@@ -13,7 +13,7 @@ class ChannelCommands(commands.Cog):
     async def top_channels(self, interaction: discord.Interaction, days: int = 30):
         await interaction.response.defer()
         try:
-            rows = await queries.get_top_channels(interaction.guild_id, days=days)
+            rows = await queries.get_top_channels(interaction.guild_id, days=days, limit=7)
             if not rows:
                 await interaction.followup.send("No channel data yet.")
                 return

@@ -34,10 +34,10 @@ class DashboardCommands(commands.Cog):
 
         leaderboard_rows = await queries.get_leaderboard(interaction.guild_id, days=days, limit=5)
         heatmap_rows     = await queries.get_activity_heatmap(interaction.guild_id, days=days)
-        emoji_rows       = await queries.get_top_emojis(interaction.guild_id, days=days)
+        emoji_rows       = await queries.get_top_emojis(interaction.guild_id, days=days, limit=7)
         vc_rows          = await queries.get_vc_leaderboard(interaction.guild_id, days=days, limit=5)
         sticker_rows     = await queries.get_top_stickers(interaction.guild_id, days=days, limit=5)
-        channel_rows     = await queries.get_top_channels(interaction.guild_id, days=days, limit=10)
+        channel_rows     = await queries.get_top_channels(interaction.guild_id, days=days, limit=5)
 
         if not leaderboard_rows and not heatmap_rows:
             await interaction.followup.send("No data yet.")
