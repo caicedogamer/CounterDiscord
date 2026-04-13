@@ -36,6 +36,8 @@ class DashboardCommands(commands.Cog):
         heatmap_rows     = await queries.get_activity_heatmap(interaction.guild_id, days=days)
         emoji_rows       = await queries.get_top_emojis(interaction.guild_id, days=days)
         vc_rows          = await queries.get_vc_leaderboard(interaction.guild_id, days=days, limit=5)
+        sticker_rows     = await queries.get_top_stickers(interaction.guild_id, days=days, limit=5)
+        channel_rows     = await queries.get_top_channels(interaction.guild_id, days=days, limit=10)
 
         if not leaderboard_rows and not heatmap_rows:
             await interaction.followup.send("No data yet.")
@@ -61,11 +63,24 @@ class DashboardCommands(commands.Cog):
             minutes = (total % 3600) // 60
             vc_data.append({"name": name, "count": round(total / 3600, 4), "label": f"{hours}h {minutes}m"})
 
+        sticker_data = []
+        for row in sticker_rows:
+            name = row["sticker_name"] or f"Sticker {str(row['sticker_id'])[-4:]}"
+            sticker_data.append({"name": name, "count": row["count"]})
+
+        channel_data = []
+        for row in channel_rows:
+            channel = interaction.guild.get_channel(int(row["channel_id"]))
+            name = f"#{channel.name}" if channel else f"Channel {str(row['channel_id'])[-4:]}"
+            channel_data.append({"name": name, "count": row["msg_count"]})
+
         buf = await dashboard.server_dashboard(
             leaderboard_rows=board_data,
             heatmap_rows=heatmap_rows,
             emoji_rows=emoji_data,
             vc_rows=vc_data,
+            sticker_rows=sticker_data,
+            channel_rows=channel_data,
             days=days,
         )
         await interaction.followup.send(file=discord.File(buf, filename="dashboard.png"))

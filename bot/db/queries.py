@@ -195,6 +195,19 @@ async def get_sticker_top_users(guild_id, sticker_id, days=30, limit=10):
         guild_id, sticker_id, str(days), limit
     )
 
+async def get_top_channels(guild_id, days=30, limit=10):
+    return await get_pool().fetch(
+        """SELECT channel_id, COUNT(*) as msg_count
+           FROM messages
+           WHERE guild_id = $1
+             AND created_at >= NOW() - ($2 || ' days')::interval
+             AND is_deleted = FALSE
+           GROUP BY channel_id
+           ORDER BY msg_count DESC
+           LIMIT $3""",
+        guild_id, str(days), limit
+    )
+
 async def insert_interaction(guild_id, channel_id, from_user, to_user, hit_at):
     await get_pool().execute(
         """INSERT INTO user_interactions (guild_id, channel_id, from_user, to_user, hit_at)

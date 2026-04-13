@@ -82,8 +82,8 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
         )
     ax.margins(x=0.22)
 
-def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, days):
-    FIG_W, FIG_H = 20, 16
+def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days):
+    FIG_W, FIG_H = 20, 20
     DPI = 150
 
     fig = plt.figure(figsize=(FIG_W, FIG_H), dpi=DPI)
@@ -99,18 +99,19 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, days):
     bg_ax.axis("off")
 
     gs = gridspec.GridSpec(
-    3, 2, figure=fig,
-    hspace=0.58, wspace=0.32,
-    left=0.04, right=0.95,
-    top=0.91, bottom=0.06,
-    height_ratios=[1.1, 1, 1]
-)
+        4, 2, figure=fig,
+        hspace=0.58, wspace=0.32,
+        left=0.04, right=0.95,
+        top=0.91, bottom=0.06,
+        height_ratios=[1.1, 1, 1, 0.9]
+    )
 
-    ax_heat  = fig.add_subplot(gs[0, :], zorder=2)
-    ax_board = fig.add_subplot(gs[1, 0], zorder=2)
-    ax_emoji = fig.add_subplot(gs[1, 1], zorder=2)
-    ax_vc    = fig.add_subplot(gs[2, 0], zorder=2)
-    ax_blank = fig.add_subplot(gs[2, 1], zorder=2)
+    ax_heat     = fig.add_subplot(gs[0, :], zorder=2)
+    ax_board    = fig.add_subplot(gs[1, 0], zorder=2)
+    ax_emoji    = fig.add_subplot(gs[1, 1], zorder=2)
+    ax_vc       = fig.add_subplot(gs[2, 0], zorder=2)
+    ax_blank    = fig.add_subplot(gs[2, 1], zorder=2)
+    ax_channels = fig.add_subplot(gs[3, :], zorder=2)
 
     # --- Heatmap panel ---
     grid = np.zeros((7, 24))
@@ -173,17 +174,11 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, days):
     _draw_bar_panel(ax_vc, vc_rows,
                     f"Most Time in VC ({days}d)", "Hours", "#1a6e4f", "#4ff7a0")
 
-    # --- Placeholder panel ---
-    ax_blank.set_facecolor((0.06, 0.08, 0.15, 0.85))
-    for spine in ax_blank.spines.values():
-        spine.set_edgecolor("#2a3a5e")
-        spine.set_linewidth(1.2)
-    ax_blank.text(0.5, 0.5, "More stats\ncoming soon",
-                  ha="center", va="center",
-                  color=TEXT_DIM, fontsize=11,
-                  transform=ax_blank.transAxes,
-                  linespacing=2.0)
-    ax_blank.axis("off")
+    _draw_bar_panel(ax_blank, sticker_rows,
+                    f"Top Stickers ({days}d)", "Times Used", "#6e4f1a", "#f7c44f")
+
+    _draw_bar_panel(ax_channels, channel_rows,
+                    f"Most Active Channels ({days}d)", "Messages", "#1a4e6e", "#4fb8f7")
 
     # --- Title ---
     fig.suptitle(
@@ -197,6 +192,6 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, days):
     plt.close(fig)
     return buf
 
-async def server_dashboard(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, days):
+async def server_dashboard(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days):
     from bot.charts.renderer import run_in_executor
-    return await run_in_executor(_draw, leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, days)
+    return await run_in_executor(_draw, leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days)
