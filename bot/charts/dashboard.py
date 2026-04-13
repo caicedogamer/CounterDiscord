@@ -103,7 +103,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         hspace=0.65, wspace=0.32,
         left=0.04, right=0.95,
         top=0.91, bottom=0.06,
-        height_ratios=[1, 1, 1, 0.8]
+        height_ratios=[0.7, 1, 1, 0.7]
     )
 
     ax_heat     = fig.add_subplot(gs[0, :], zorder=2)
@@ -135,7 +135,8 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         annot_kws={"size": 6, "color": TEXT, "alpha": 0.9},
         vmin=0,
     )
-    ax_heat.set_aspect("auto")
+    ax_heat.set_xlim(0, 24)
+    ax_heat.set_ylim(7, 0)
     for text in ax_heat.texts:
         if text.get_text() == "0":
             text.set_visible(False)
