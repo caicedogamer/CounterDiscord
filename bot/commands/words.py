@@ -9,12 +9,12 @@ class WordCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="word", description="See who uses a word the most")
-    @app_commands.describe(term="The word or phrase to look up", days="Look back period in days (default 30)")
-    async def word(self, interaction: discord.Interaction, term: str, days: int = 30):
+    @app_commands.describe(term="The word or phrase to look up", days="Look back period in days (default 30)", limit="Number of users to show (default 10)")
+    async def word(self, interaction: discord.Interaction, term: str, days: int = 30, limit: int = 10):
         await interaction.response.defer()
 
         try:
-            rows = await queries.get_word_top_users(interaction.guild_id, term, days=days)
+            rows = await queries.get_word_top_users(interaction.guild_id, term, days=days, limit=limit)
             if not rows:
                 await interaction.followup.send(
                     f"No data for **{term}** yet. Make sure it's being tracked with `/track-word`."

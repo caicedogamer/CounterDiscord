@@ -9,11 +9,11 @@ class StickerCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="top-stickers", description="Most used stickers in the server")
-    @app_commands.describe(days="Look back period in days (default 30)")
-    async def top_stickers(self, interaction: discord.Interaction, days: int = 30):
+    @app_commands.describe(days="Look back period in days (default 30)", limit="Number of stickers to show (default 10)")
+    async def top_stickers(self, interaction: discord.Interaction, days: int = 30, limit: int = 10):
         await interaction.response.defer()
         try:
-            rows = await queries.get_top_stickers(interaction.guild_id, days=days)
+            rows = await queries.get_top_stickers(interaction.guild_id, days=days, limit=limit)
             if not rows:
                 await interaction.followup.send("No sticker data yet.")
                 return

@@ -28,11 +28,11 @@ class TopEmojiCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="top-emojis", description="Most used emojis in the server")
-    @app_commands.describe(days="Look back period in days (default 30)")
-    async def top_emojis(self, interaction: discord.Interaction, days: int = 30):
+    @app_commands.describe(days="Look back period in days (default 30)", limit="Number of emojis to show (default 10)")
+    async def top_emojis(self, interaction: discord.Interaction, days: int = 30, limit: int = 10):
         await interaction.response.defer()
 
-        rows = await queries.get_top_emojis(interaction.guild_id, days=days)
+        rows = await queries.get_top_emojis(interaction.guild_id, days=days, limit=limit)
         if not rows:
             await interaction.followup.send("No emoji data yet.")
             return

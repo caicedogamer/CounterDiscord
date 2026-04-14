@@ -9,11 +9,11 @@ class ChannelCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="top-channels", description="Most active channels in the server")
-    @app_commands.describe(days="Look back period in days (default 30)")
-    async def top_channels(self, interaction: discord.Interaction, days: int = 30):
+    @app_commands.describe(days="Look back period in days (default 30)", limit="Number of channels to show (default 10)")
+    async def top_channels(self, interaction: discord.Interaction, days: int = 30, limit: int = 10):
         await interaction.response.defer()
         try:
-            rows = await queries.get_top_channels(interaction.guild_id, days=days, limit=7)
+            rows = await queries.get_top_channels(interaction.guild_id, days=days, limit=limit)
             if not rows:
                 await interaction.followup.send("No channel data yet.")
                 return

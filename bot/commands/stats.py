@@ -9,11 +9,11 @@ class StatsCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="leaderboard", description="Top message senders")
-    @app_commands.describe(days="Look back period in days (default 30)")
-    async def leaderboard(self, interaction: discord.Interaction, days: int = 30):
+    @app_commands.describe(days="Look back period in days (default 30)", limit="Number of users to show (default 10)")
+    async def leaderboard(self, interaction: discord.Interaction, days: int = 30, limit: int = 10):
         await interaction.response.defer()
 
-        rows = await queries.get_leaderboard(interaction.guild_id, days=days)
+        rows = await queries.get_leaderboard(interaction.guild_id, days=days, limit=limit)
         if not rows:
             await interaction.followup.send("No data yet.")
             return
@@ -33,11 +33,11 @@ class StatsCommands(commands.Cog):
         await interaction.followup.send(file=discord.File(buf, filename="leaderboard.png"))
 
     @app_commands.command(name="least-active", description="Members who sent the fewest messages (at least 1)")
-    @app_commands.describe(days="Look back period in days (default 30)")
-    async def least_active(self, interaction: discord.Interaction, days: int = 30):
+    @app_commands.describe(days="Look back period in days (default 30)", limit="Number of users to show (default 10)")
+    async def least_active(self, interaction: discord.Interaction, days: int = 30, limit: int = 10):
         await interaction.response.defer()
 
-        rows = await queries.get_least_active(interaction.guild_id, days=days)
+        rows = await queries.get_least_active(interaction.guild_id, days=days, limit=limit)
         if not rows:
             await interaction.followup.send("No data yet.")
             return

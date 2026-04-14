@@ -9,11 +9,11 @@ class VCCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="vc-leaderboard", description="Who spends the most time in voice channels")
-    @app_commands.describe(days="Look back period in days (default 30)")
-    async def vc_leaderboard(self, interaction: discord.Interaction, days: int = 30):
+    @app_commands.describe(days="Look back period in days (default 30)", limit="Number of users to show (default 10)")
+    async def vc_leaderboard(self, interaction: discord.Interaction, days: int = 30, limit: int = 10):
         await interaction.response.defer()
 
-        rows = await queries.get_vc_leaderboard(interaction.guild_id, days=days)
+        rows = await queries.get_vc_leaderboard(interaction.guild_id, days=days, limit=limit)
         if not rows:
             await interaction.followup.send("No VC data yet.")
             return

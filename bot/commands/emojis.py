@@ -30,8 +30,8 @@ class EmojiCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="emoji", description="See who uses an emoji the most")
-    @app_commands.describe(emoji="Paste the emoji directly or type its numeric ID", days="Look back period in days (default 30)")
-    async def emoji(self, interaction: discord.Interaction, emoji: str, days: int = 30):
+    @app_commands.describe(emoji="Paste the emoji directly or type its numeric ID", days="Look back period in days (default 30)", limit="Number of users to show (default 10)")
+    async def emoji(self, interaction: discord.Interaction, emoji: str, days: int = 30, limit: int = 10):
         await interaction.response.defer()
 
         try:
@@ -55,15 +55,15 @@ class EmojiCommands(commands.Cog):
 
             if emoji_id is None:
                 rows = await queries.get_emoji_top_users_by_name(
-                    interaction.guild_id, emoji_name, days=days
+                    interaction.guild_id, emoji_name, days=days, limit=limit
                 )
             else:
                 rows = await queries.get_emoji_top_users(
-                    interaction.guild_id, emoji_id, days=days
+                    interaction.guild_id, emoji_id, days=days, limit=limit
                 )
                 if not rows and emoji_name:
                     rows = await queries.get_emoji_top_users_by_name(
-                        interaction.guild_id, emoji_name, days=days
+                        interaction.guild_id, emoji_name, days=days, limit=limit
                     )
 
             if not rows:
