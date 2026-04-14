@@ -55,7 +55,7 @@ def _draw(dates, values, title, ylabel):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=max(1, len(dates) // 8)))
     plt.xticks(rotation=45, ha="right", fontsize=8)
 
-    ax.set_title(title, fontsize=14, pad=16, fontweight="bold", color=TEXT)
+    fig.suptitle(title, fontsize=14, fontweight="bold", color=TEXT, y=1.01)
     ax.set_ylabel(ylabel, color=TEXT_DIM)
     ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
 

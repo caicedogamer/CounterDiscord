@@ -43,12 +43,12 @@ def _draw(labels, values, title, xlabel, bar_labels=None):
             color=TEXT_DIM, fontsize=8
         )
 
-    ax.set_title(title, fontsize=13, pad=12, loc="center")
     ax.set_xlabel(xlabel, color=TEXT_DIM)
     ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
     ax.margins(x=0.18)
     ax.set_xlim(left=-max(values) * 0.06)
 
+    fig.suptitle(title, fontsize=13, fontweight="bold", color=TEXT, y=1.01)
     fig.patch.set_linewidth(1)
     fig.patch.set_edgecolor(SURFACE2)
 

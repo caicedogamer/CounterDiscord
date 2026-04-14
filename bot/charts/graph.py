@@ -99,7 +99,7 @@ def _draw(edges, title):
         bbox=dict(facecolor=BACKGROUND, edgecolor="none", alpha=0.6),
     )
 
-    ax.set_title(title, fontsize=15, fontweight="bold", color=TEXT, pad=16)
+    fig.suptitle(title, fontsize=15, fontweight="bold", color=TEXT, y=1.01)
 
     fig.text(
         0.01, 0.01,
