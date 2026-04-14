@@ -195,6 +195,20 @@ async def get_sticker_top_users(guild_id, sticker_id, days=30, limit=10):
         guild_id, sticker_id, str(days), limit
     )
 
+async def get_least_active(guild_id, days=30, limit=10):
+    return await get_pool().fetch(
+        """SELECT user_id, COUNT(*) as msg_count
+           FROM messages
+           WHERE guild_id = $1
+             AND created_at >= NOW() - ($2 || ' days')::interval
+             AND is_deleted = FALSE
+           GROUP BY user_id
+           HAVING COUNT(*) >= 1
+           ORDER BY msg_count ASC
+           LIMIT $3""",
+        guild_id, str(days), limit
+    )
+
 async def get_top_channels(guild_id, days=30, limit=10):
     return await get_pool().fetch(
         """SELECT channel_id, COUNT(*) as msg_count

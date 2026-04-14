@@ -32,5 +32,29 @@ class StatsCommands(commands.Cog):
         )
         await interaction.followup.send(file=discord.File(buf, filename="leaderboard.png"))
 
+    @app_commands.command(name="least-active", description="Members who sent the fewest messages (at least 1)")
+    @app_commands.describe(days="Look back period in days (default 30)")
+    async def least_active(self, interaction: discord.Interaction, days: int = 30):
+        await interaction.response.defer()
+
+        rows = await queries.get_least_active(interaction.guild_id, days=days)
+        if not rows:
+            await interaction.followup.send("No data yet.")
+            return
+
+        labels = []
+        for row in rows:
+            member = interaction.guild.get_member(row["user_id"])
+            labels.append(member.display_name if member else f"User {row['user_id']}")
+        counts = [row["msg_count"] for row in rows]
+
+        buf = await bar.horizontal_bar(
+            labels=labels,
+            values=counts,
+            title=f"Least Active Members — Last {days} days",
+            xlabel="Messages",
+        )
+        await interaction.followup.send(file=discord.File(buf, filename="least_active.png"))
+
 async def setup(bot):
     await bot.add_cog(StatsCommands(bot))
