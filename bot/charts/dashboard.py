@@ -4,34 +4,38 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.colors as mcolors
 import seaborn as sns
-from bot.charts.renderer import BACKGROUND, SURFACE2, ACCENT, ACCENT2, TEXT, TEXT_DIM
+from bot.charts.renderer import BACKGROUND, ACCENT, ACCENT2, TEXT, TEXT_DIM
 
 DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 MIDNIGHT_CMAP = mcolors.LinearSegmentedColormap.from_list(
-    "midnight",
-    ["#0a0e1a", "#0d2044", "#1a3a6e", "#2a5ba8", "#4f8ef7", "#7ab3ff"],
+    "rose",
+    ["#0a0e1a", "#2a0a20", "#6a1048", "#aa1868", "#e03088", "#ff60b0"],
 )
 
+PANEL_BG   = "#0e1525"
+PANEL_EDGE = "#2a3a5e"
+GRID_COLOR = "#182035"
 
-def _add_panel(fig, ax, title):
+
+def _add_panel(ax, title):
     """Style an axis as a frosted panel."""
-    ax.set_facecolor((0.06, 0.08, 0.15, 0.85))
+    ax.set_facecolor(PANEL_BG)
     for spine in ax.spines.values():
-        spine.set_edgecolor("#2a3a5e")
-        spine.set_linewidth(1.2)
-    ax.tick_params(colors=TEXT, labelsize=8)
-    ax.grid(True, color="#1a2540", linewidth=0.5, alpha=0.7)
+        spine.set_edgecolor(PANEL_EDGE)
+        spine.set_linewidth(1.5)
+    ax.tick_params(colors=TEXT, labelsize=9)
+    ax.grid(True, color=GRID_COLOR, linewidth=0.6, alpha=0.8)
     ax.set_axisbelow(True)
-    ax.set_title(title, color=TEXT, fontsize=11, fontweight="bold", pad=10)
+    ax.set_title(title, color=TEXT, fontsize=13, fontweight="bold", pad=12)
 
 def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
-    _add_panel(ax, ax, title)
-    ax.set_xlabel(xlabel, color=TEXT_DIM, fontsize=8)
+    _add_panel(ax, title)
+    ax.set_xlabel(xlabel, color=TEXT_DIM, fontsize=10)
 
     if not rows:
         ax.text(0.5, 0.5, "No data yet", ha="center", va="center",
-                color=TEXT_DIM, fontsize=9, transform=ax.transAxes)
+                color=TEXT_DIM, fontsize=11, transform=ax.transAxes)
         ax.axis("off")
         return
 
@@ -42,14 +46,16 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
     counts = [r["count"] for r in rows]
     disp   = [r.get("label", str(r["count"])) for r in rows]
 
-    bars = ax.barh(names[::-1], counts[::-1], color=colors, height=0.55, edgecolor="none")
+    bars = ax.barh(names[::-1], counts[::-1], color=colors, height=0.58, edgecolor="none")
     for bar, lbl in zip(bars, disp[::-1]):
         ax.text(
             bar.get_width() + max(counts) * 0.02,
             bar.get_y() + bar.get_height() / 2,
-            lbl, va="center", color=TEXT, fontsize=8, fontweight="bold"
+            lbl, va="center", color=TEXT, fontsize=10, fontweight="bold"
         )
-    ax.margins(x=0.22)
+    ax.margins(x=0.24)
+    ax.tick_params(axis="y", labelsize=10)
+    ax.tick_params(axis="x", labelsize=9)
 
 def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days):
     FIG_W, FIG_H = 20, 20
@@ -60,9 +66,9 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
 
     gs = gridspec.GridSpec(
         4, 2, figure=fig,
-        hspace=0.65, wspace=0.32,
-        left=0.04, right=0.95,
-        top=0.91, bottom=0.06,
+        hspace=0.72, wspace=0.35,
+        left=0.05, right=0.95,
+        top=0.91, bottom=0.07,
         height_ratios=[1.3, 1, 1, 1.2]
     )
 
@@ -80,19 +86,19 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         h = int(row["hour_of_day"])
         grid[d][h] = row["msg_count"]
 
-    ax_heat.set_facecolor((0.06, 0.08, 0.15, 0.85))
+    ax_heat.set_facecolor(PANEL_BG)
     for spine in ax_heat.spines.values():
-        spine.set_edgecolor("#2a3a5e")
-        spine.set_linewidth(1.2)
+        spine.set_edgecolor(PANEL_EDGE)
+        spine.set_linewidth(1.5)
 
     sns.heatmap(
         grid, ax=ax_heat, cmap=MIDNIGHT_CMAP,
-        linewidths=0.4, linecolor="#0a0e1a",
+        linewidths=0.5, linecolor="#0a0e1a",
         yticklabels=DAYS,
         xticklabels=[f"{h:02d}h" for h in range(24)],
         cbar_kws={"shrink": 0.5, "pad": 0.01},
         annot=True, fmt=".0f",
-        annot_kws={"size": 6, "color": TEXT, "alpha": 0.9},
+        annot_kws={"size": 8, "color": TEXT, "alpha": 0.9},
         vmin=0,
     )
     ax_heat.set_xlim(0, 24)
@@ -111,20 +117,20 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         ax_heat.text(
             peak[1] + 0.5, peak[0] - 0.15, "peak",
             ha="center", va="bottom",
-            color="#ffffff", fontsize=7, fontweight="bold"
+            color="#ffffff", fontsize=9, fontweight="bold"
         )
 
     cbar = ax_heat.collections[0].colorbar
-    cbar.ax.tick_params(colors=TEXT, labelsize=7)
+    cbar.ax.tick_params(colors=TEXT, labelsize=9)
     cbar.ax.yaxis.label.set_color(TEXT)
     ax_heat.set_title(f"Activity Heatmap — Last {days} days",
-                  color=TEXT, fontsize=13, fontweight="bold", pad=12,
+                  color=TEXT, fontsize=14, fontweight="bold", pad=12,
                   loc="center")
-    ax_heat.tick_params(colors=TEXT, labelsize=7)
-    plt.setp(ax_heat.get_xticklabels(), rotation=45, ha="right")
-    plt.setp(ax_heat.get_yticklabels(), rotation=0)
+    ax_heat.tick_params(colors=TEXT, labelsize=9)
+    plt.setp(ax_heat.get_xticklabels(), rotation=45, ha="right", fontsize=9)
+    plt.setp(ax_heat.get_yticklabels(), rotation=0, fontsize=10)
     fig.text(0.06, 0.065, "UTC timezone  •  White border = peak activity",
-             color=TEXT_DIM, fontsize=7)
+             color=TEXT_DIM, fontsize=9)
 
     # --- Bar panels ---
     _draw_bar_panel(ax_board, leaderboard_rows,
@@ -145,7 +151,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
     # --- Title ---
     fig.suptitle(
         f"✦  Server Dashboard  ✦  Last {days} Days",
-        fontsize=17, color=TEXT, y=0.97, fontweight="bold"
+        fontsize=20, color=TEXT, y=0.97, fontweight="bold"
     )
 
     buf = io.BytesIO()
