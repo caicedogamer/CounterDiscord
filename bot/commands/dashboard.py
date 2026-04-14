@@ -1,4 +1,3 @@
-import re
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -70,7 +69,8 @@ class DashboardCommands(commands.Cog):
 
         channel_data = []
         for row in channel_rows:
-            channel = interaction.guild.get_channel(int(row["channel_id"]))
+            cid = int(row["channel_id"])
+            channel = interaction.guild.get_channel(cid) or interaction.guild.get_thread(cid)
             name = f"#{channel.name}" if channel else f"Channel {str(row['channel_id'])[-4:]}"
             channel_data.append({"name": name, "count": row["msg_count"]})
 

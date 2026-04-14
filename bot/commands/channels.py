@@ -20,7 +20,8 @@ class ChannelCommands(commands.Cog):
 
             labels = []
             for row in rows:
-                channel = interaction.guild.get_channel(int(row["channel_id"]))
+                cid = int(row["channel_id"])
+                channel = interaction.guild.get_channel(cid) or interaction.guild.get_thread(cid)
                 labels.append(f"#{channel.name}" if channel else f"Channel {str(row['channel_id'])[-4:]}")
             values = [row["msg_count"] for row in rows]
 
