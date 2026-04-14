@@ -28,7 +28,7 @@ async def insert_emoji_hit(guild_id, channel_id, user_id, emoji_id, emoji_name, 
                VALUES ($1, $2, $3, $4, $5, $6, $7)""",
             guild_id, channel_id, user_id, emoji_id, emoji_name, context, hit_at
         )
-    except Exception as e:
+    except Exception:
         import traceback
         traceback.print_exc()
 
@@ -58,12 +58,26 @@ async def get_leaderboard(guild_id, days=30, limit=10):
         """SELECT user_id, COUNT(*) as msg_count
            FROM messages
            WHERE guild_id = $1
-             AND created_at >= NOW() - ($2 || ' days')::interval
+             AND created_at >= NOW() - make_interval(days => $2)
              AND is_deleted = FALSE
            GROUP BY user_id
            ORDER BY msg_count DESC
            LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, days, limit
+    )
+
+async def get_least_active(guild_id, days=30, limit=10):
+    return await get_pool().fetch(
+        """SELECT user_id, COUNT(*) as msg_count
+           FROM messages
+           WHERE guild_id = $1
+             AND created_at >= NOW() - make_interval(days => $2)
+             AND is_deleted = FALSE
+           GROUP BY user_id
+           HAVING COUNT(*) >= 1
+           ORDER BY msg_count ASC
+           LIMIT $3""",
+        guild_id, days, limit
     )
 
 async def get_activity_heatmap(guild_id, channel_id=None, days=30):
@@ -75,10 +89,10 @@ async def get_activity_heatmap(guild_id, channel_id=None, days=30):
                  COUNT(*) AS msg_count
                FROM messages
                WHERE guild_id = $1
-                 AND created_at >= NOW() - ($2 || ' days')::interval
+                 AND created_at >= NOW() - make_interval(days => $2)
                  AND channel_id = $3
                GROUP BY day_of_week, hour_of_day""",
-            guild_id, str(days), channel_id
+            guild_id, days, channel_id
         )
     else:
         return await get_pool().fetch(
@@ -88,9 +102,9 @@ async def get_activity_heatmap(guild_id, channel_id=None, days=30):
                  COUNT(*) AS msg_count
                FROM messages
                WHERE guild_id = $1
-                 AND created_at >= NOW() - ($2 || ' days')::interval
+                 AND created_at >= NOW() - make_interval(days => $2)
                GROUP BY day_of_week, hour_of_day""",
-            guild_id, str(days)
+            guild_id, days
         )
 
 async def get_word_frequency(guild_id, word, days=30):
@@ -98,9 +112,9 @@ async def get_word_frequency(guild_id, word, days=30):
         """SELECT DATE_TRUNC('day', hit_at) as day, COUNT(*) as count
            FROM word_hits
            WHERE guild_id = $1 AND word = $2
-             AND hit_at >= NOW() - ($3 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $3)
            GROUP BY day ORDER BY day""",
-        guild_id, word.lower(), str(days)
+        guild_id, word.lower(), days
     )
 
 async def get_word_top_users(guild_id, word, days=30, limit=10):
@@ -108,11 +122,11 @@ async def get_word_top_users(guild_id, word, days=30, limit=10):
         """SELECT user_id, COUNT(*) as count
            FROM word_hits
            WHERE guild_id = $1 AND word = $2
-             AND hit_at >= NOW() - ($3 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $3)
            GROUP BY user_id
            ORDER BY count DESC
            LIMIT $4""",
-        guild_id, word.lower(), str(days), limit
+        guild_id, word.lower(), days, limit
     )
 
 async def get_emoji_top_users(guild_id, emoji_id, days=30, limit=10):
@@ -120,11 +134,11 @@ async def get_emoji_top_users(guild_id, emoji_id, days=30, limit=10):
         """SELECT user_id, COUNT(*) as count
            FROM emoji_hits
            WHERE guild_id = $1 AND emoji_id = $2
-             AND hit_at >= NOW() - ($3 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $3)
            GROUP BY user_id
            ORDER BY count DESC
            LIMIT $4""",
-        guild_id, emoji_id, str(days), limit
+        guild_id, emoji_id, days, limit
     )
 
 async def get_emoji_top_users_by_name(guild_id, emoji_name, days=30, limit=10):
@@ -133,11 +147,11 @@ async def get_emoji_top_users_by_name(guild_id, emoji_name, days=30, limit=10):
            FROM emoji_hits
            WHERE guild_id = $1
              AND LOWER(emoji_name) = LOWER($2)
-             AND hit_at >= NOW() - ($3 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $3)
            GROUP BY user_id
            ORDER BY count DESC
            LIMIT $4""",
-        guild_id, emoji_name, str(days), limit
+        guild_id, emoji_name, days, limit
     )
 
 async def get_top_emojis(guild_id, days=30, limit=10):
@@ -145,23 +159,23 @@ async def get_top_emojis(guild_id, days=30, limit=10):
         """SELECT emoji_id, emoji_name, COUNT(*) as count
            FROM emoji_hits
            WHERE guild_id = $1
-             AND hit_at >= NOW() - ($2 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $2)
            GROUP BY emoji_id, emoji_name
            ORDER BY count DESC
            LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, days, limit
     )
 
-async def get_vc_leaderboard(guild_id, days=30, limit=5):
+async def get_vc_leaderboard(guild_id, days=30, limit=10):
     return await get_pool().fetch(
         """SELECT user_id, SUM(duration_seconds) as total_seconds
            FROM vc_sessions
            WHERE guild_id = $1
-             AND joined_at >= NOW() - ($2 || ' days')::interval
+             AND joined_at >= NOW() - make_interval(days => $2)
            GROUP BY user_id
            ORDER BY total_seconds DESC
            LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, days, limit
     )
 
 async def insert_sticker_hit(guild_id, channel_id, user_id, sticker_id, sticker_name, hit_at):
@@ -176,11 +190,11 @@ async def get_top_stickers(guild_id, days=30, limit=10):
         """SELECT sticker_id, sticker_name, COUNT(*) as count
            FROM sticker_hits
            WHERE guild_id = $1
-             AND hit_at >= NOW() - ($2 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $2)
            GROUP BY sticker_id, sticker_name
            ORDER BY count DESC
            LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, days, limit
     )
 
 async def get_sticker_top_users(guild_id, sticker_id, days=30, limit=10):
@@ -188,25 +202,11 @@ async def get_sticker_top_users(guild_id, sticker_id, days=30, limit=10):
         """SELECT user_id, COUNT(*) as count
            FROM sticker_hits
            WHERE guild_id = $1 AND sticker_id = $2
-             AND hit_at >= NOW() - ($3 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $3)
            GROUP BY user_id
            ORDER BY count DESC
            LIMIT $4""",
-        guild_id, sticker_id, str(days), limit
-    )
-
-async def get_least_active(guild_id, days=30, limit=10):
-    return await get_pool().fetch(
-        """SELECT user_id, COUNT(*) as msg_count
-           FROM messages
-           WHERE guild_id = $1
-             AND created_at >= NOW() - ($2 || ' days')::interval
-             AND is_deleted = FALSE
-           GROUP BY user_id
-           HAVING COUNT(*) >= 1
-           ORDER BY msg_count ASC
-           LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, sticker_id, days, limit
     )
 
 async def get_top_channels(guild_id, days=30, limit=10):
@@ -214,12 +214,12 @@ async def get_top_channels(guild_id, days=30, limit=10):
         """SELECT channel_id, COUNT(*) as msg_count
            FROM messages
            WHERE guild_id = $1
-             AND created_at >= NOW() - ($2 || ' days')::interval
+             AND created_at >= NOW() - make_interval(days => $2)
              AND is_deleted = FALSE
            GROUP BY channel_id
            ORDER BY msg_count DESC
            LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, days, limit
     )
 
 async def insert_interaction(guild_id, channel_id, from_user, to_user, hit_at):
@@ -236,12 +236,12 @@ async def get_interactions(guild_id, days=30, limit=50):
         """SELECT from_user, to_user, COUNT(*) as count
            FROM user_interactions
            WHERE guild_id = $1
-             AND hit_at >= NOW() - ($2 || ' days')::interval
+             AND hit_at >= NOW() - make_interval(days => $2)
              AND from_user != to_user
            GROUP BY from_user, to_user
            ORDER BY count DESC
            LIMIT $3""",
-        guild_id, str(days), limit
+        guild_id, days, limit
     )
 
 async def insert_vc_session(guild_id, channel_id, user_id, joined_at, left_at, duration_seconds):
