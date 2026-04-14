@@ -223,6 +223,8 @@ async def get_top_channels(guild_id, days=30, limit=10):
     )
 
 async def insert_interaction(guild_id, channel_id, from_user, to_user, hit_at):
+    if from_user == to_user:
+        return
     await get_pool().execute(
         """INSERT INTO user_interactions (guild_id, channel_id, from_user, to_user, hit_at)
            VALUES ($1, $2, $3, $4, $5)""",
@@ -235,6 +237,7 @@ async def get_interactions(guild_id, days=30, limit=50):
            FROM user_interactions
            WHERE guild_id = $1
              AND hit_at >= NOW() - ($2 || ' days')::interval
+             AND from_user != to_user
            GROUP BY from_user, to_user
            ORDER BY count DESC
            LIMIT $3""",
