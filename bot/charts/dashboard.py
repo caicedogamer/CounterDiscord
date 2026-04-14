@@ -3,10 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.colors as mcolors
-import matplotlib.patches as mpatches
 import seaborn as sns
-from scipy.ndimage import gaussian_filter
-from bot.charts.renderer import BACKGROUND, SURFACE, SURFACE2, ACCENT, ACCENT2, TEXT, TEXT_DIM
+from bot.charts.renderer import BACKGROUND, SURFACE2, ACCENT, ACCENT2, TEXT, TEXT_DIM
 
 DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
@@ -15,35 +13,6 @@ MIDNIGHT_CMAP = mcolors.LinearSegmentedColormap.from_list(
     ["#0a0e1a", "#0d2044", "#1a3a6e", "#2a5ba8", "#4f8ef7", "#7ab3ff"],
 )
 
-def _generate_background(width, height):
-    """Generate a procedural nebula/space background."""
-    rng = np.random.default_rng(42)
-
-    # Base dark gradient
-    bg = np.zeros((height, width, 3))
-    for i in range(height):
-        t = i / height
-        bg[i, :, 0] = 0.04 + t * 0.02
-        bg[i, :, 1] = 0.05 + t * 0.03
-        bg[i, :, 2] = 0.10 + t * 0.08
-
-    # Nebula clouds
-    for _ in range(4):
-        blob = rng.random((height, width)) * 0.12
-        blob = gaussian_filter(blob, sigma=rng.integers(40, 120))
-        cx = rng.integers(0, 3)  # color channel bias
-        bg[:, :, cx] += blob * rng.uniform(0.3, 0.8)
-        bg[:, :, 2]  += blob * 0.4
-
-    # Stars
-    num_stars = 300
-    sy = rng.integers(0, height, num_stars)
-    sx = rng.integers(0, width, num_stars)
-    brightness = rng.uniform(0.4, 1.0, num_stars)
-    for y, x, b in zip(sy, sx, brightness):
-        bg[y, x, :] = [b * 0.9, b * 0.95, b]
-
-    return np.clip(bg, 0, 1)
 
 def _add_panel(fig, ax, title):
     """Style an axis as a frosted panel."""
@@ -88,15 +57,6 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
 
     fig = plt.figure(figsize=(FIG_W, FIG_H), dpi=DPI)
     fig.patch.set_facecolor(BACKGROUND)
-
-    # --- Background image ---
-    bg_px_w = int(FIG_W * DPI)
-    bg_px_h = int(FIG_H * DPI)
-    bg = _generate_background(bg_px_w, bg_px_h)
-    bg_ax = fig.add_axes([0, 0, 1, 1], zorder=0)
-    bg_ax.imshow(bg, aspect="auto", extent=[0, 1, 0, 1],
-                 transform=bg_ax.transAxes, origin="upper")
-    bg_ax.axis("off")
 
     gs = gridspec.GridSpec(
         4, 2, figure=fig,
