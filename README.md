@@ -23,6 +23,7 @@ A Discord analytics bot that tracks server activity, visualizes stats as charts,
 | Command | Description |
 |---|---|
 | `/leaderboard [days]` | Top message senders bar chart |
+| `/least-active [days]` | Members with fewest messages (at least 1) |
 | `/activity [days]` | Message activity heatmap by day and hour |
 | `/vc-leaderboard [days]` | Most time spent in voice channels |
 | `/top-emojis [days]` | Most used emojis server-wide |
@@ -187,17 +188,40 @@ python -m bot.main
 bot/
 ├── main.py
 ├── config.py
-├── commands/        # slash commands
-├── listeners/       # event listeners (messages, reactions, voice)
-├── db/              # connection pool and queries
-├── charts/          # chart renderers (bar, line, heatmap, dashboard)
-└── ml/              # feature extraction and ML models
-    ├── features.py
-    ├── activity.py
-    ├── anomaly.py
-    ├── clusters.py
-    ├── emoji_trends.py
-    └── models/      # saved .joblib files (gitignored)
+├── commands/
+│   ├── activity.py       # /activity heatmap
+│   ├── channels.py       # /top-channels
+│   ├── config.py         # /track-word, /untrack-word, /ignore-channel
+│   ├── dashboard.py      # /dashboard
+│   ├── emojis.py         # /emoji
+│   ├── ml_insights.py    # /predict-active, /user-archetypes, /activity-spikes, /emoji-trends
+│   ├── social.py         # /social-graph
+│   ├── stats.py          # /leaderboard, /least-active
+│   ├── stickers.py       # /top-stickers
+│   ├── top_emojis.py     # /top-emojis
+│   ├── vc.py             # /vc-leaderboard
+│   └── words.py          # /word
+├── listeners/
+│   ├── messages.py       # message, word, emoji, sticker, interaction tracking
+│   ├── reactions.py      # reaction emoji tracking
+│   └── voice.py          # VC session tracking
+├── db/
+│   ├── connection.py     # asyncpg pool setup
+│   └── queries.py        # all database queries
+├── charts/
+│   ├── renderer.py       # shared theme constants and run_in_executor
+│   ├── bar.py            # horizontal bar chart
+│   ├── line.py           # line chart
+│   ├── heatmap.py        # activity heatmap
+│   ├── graph.py          # social network graph
+│   └── dashboard.py      # multi-panel server dashboard
+└── ml/
+    ├── features.py        # feature extraction from DB
+    ├── activity.py        # activity prediction (RandomForest)
+    ├── anomaly.py         # spike detection (IsolationForest)
+    ├── clusters.py        # behavior clustering (KMeans)
+    ├── emoji_trends.py    # emoji trend analysis (LinearRegression)
+    └── models/            # saved .joblib files (gitignored)
 ```
 
 > **Note:** The bot only tracks interactions from the moment it starts running — there is no backfill for historical messages.
