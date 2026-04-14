@@ -98,7 +98,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         xticklabels=[f"{h:02d}h" for h in range(24)],
         cbar_kws={"shrink": 0.5, "pad": 0.01},
         annot=True, fmt=".0f",
-        annot_kws={"size": 8, "color": TEXT, "alpha": 0.9},
+        annot_kws={"size": 8, "color": "#000000", "alpha": 0.85},
         vmin=0,
     )
     ax_heat.set_xlim(0, 24)

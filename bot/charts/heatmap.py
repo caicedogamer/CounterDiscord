@@ -8,8 +8,8 @@ from bot.charts.renderer import BACKGROUND, SURFACE2, TEXT, TEXT_DIM
 DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 MIDNIGHT_CMAP = mcolors.LinearSegmentedColormap.from_list(
-    "midnight",
-    ["#0a0e1a", "#0d2044", "#1a3a6e", "#2a5ba8", "#4f8ef7", "#7ab3ff"],
+    "rose",
+    ["#0a0e1a", "#2a0a20", "#6a1048", "#aa1868", "#e03088", "#ff60b0"],
 )
 
 def _draw(rows, title):
@@ -34,12 +34,12 @@ def _draw(rows, title):
         yticklabels=DAYS,
         xticklabels=[f"{h:02d}h" for h in range(24)],
         cbar_kws={"shrink": 0.6, "pad": 0.02, "label": "Messages"},
-        annot=True,           # show numbers inside cells
-        fmt=".0f",            # no decimals
+        annot=True,
+        fmt=".0f",
         annot_kws={
-            "size": 7,
-            "color": TEXT,
-            "alpha": 0.9,
+            "size": 8,
+            "color": "#000000",
+            "alpha": 0.85,
         },
         vmin=0,
     )
