@@ -38,7 +38,7 @@ def _draw(edges, title):
     edge_alphas = 0.2 + norm_w * 0.7
 
     # Draw edges individually so each can have its own alpha
-    edge_cmap = mcolors.LinearSegmentedColormap.from_list("ec", [SURFACE2, ACCENT])
+    edge_cmap = mcolors.LinearSegmentedColormap.from_list("ec", ["#2a0a18", "#d03070"])
     for (u, v), width, alpha, nw in zip(G.edges(), edge_widths, edge_alphas, norm_w):
         color = edge_cmap(nw)
         nx.draw_networkx_edges(
@@ -53,8 +53,8 @@ def _draw(edges, title):
     max_strength = max(node_strength.values()) if node_strength else 1
     node_sizes = [300 + (node_strength[n] / max_strength) * 2200 for n in G.nodes()]
 
-    # Node colors using a gradient
-    node_cmap = mcolors.LinearSegmentedColormap.from_list("nc", [ACCENT2, ACCENT])
+    # Node colors using a gradient: dark maroon (few) -> crimson -> hot pink (many)
+    node_cmap = mcolors.LinearSegmentedColormap.from_list("nc", ["#1a0510", "#c0255a", "#ff7090"])
     node_colors = [node_cmap(node_strength[n] / max_strength) for n in G.nodes()]
 
     nodes = nx.draw_networkx_nodes(
@@ -68,7 +68,7 @@ def _draw(edges, title):
     # Glow effect on nodes
     if nodes is not None:
         nodes.set_path_effects([
-            pe.withStroke(linewidth=10, foreground=ACCENT, alpha=0.15),
+            pe.withStroke(linewidth=10, foreground="#ff2d55", alpha=0.15),
             pe.Normal(),
         ])
 
