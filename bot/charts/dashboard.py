@@ -74,7 +74,15 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         bg_file = os.path.join(BACKGROUNDS_DIR, f"{guild_id}.png")
         if os.path.exists(bg_file):
             from PIL import Image
-            pil_img = Image.open(bg_file).convert("RGBA").resize((FIG_W * DPI, FIG_H * DPI), Image.LANCZOS)
+            target_w, target_h = FIG_W * DPI, FIG_H * DPI
+            pil_img = Image.open(bg_file).convert("RGBA")
+            src_w, src_h = pil_img.size
+            scale = max(target_w / src_w, target_h / src_h)
+            new_w, new_h = int(src_w * scale), int(src_h * scale)
+            pil_img = pil_img.resize((new_w, new_h), Image.LANCZOS)
+            left = (new_w - target_w) // 2
+            top  = (new_h - target_h) // 2
+            pil_img = pil_img.crop((left, top, left + target_w, top + target_h))
             bg_img = np.array(pil_img)
             bg_ax = fig.add_axes([0, 0, 1, 1], zorder=0)
             bg_ax.imshow(bg_img, aspect="auto", alpha=0.18)
