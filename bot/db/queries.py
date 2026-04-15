@@ -244,6 +244,60 @@ async def get_interactions(guild_id, days=30, limit=50):
         guild_id, days, limit
     )
 
+async def get_user_stats(guild_id, user_id, days=30):
+    msg = await get_pool().fetchrow(
+        """SELECT COUNT(*) as msg_count
+           FROM messages
+           WHERE guild_id = $1 AND user_id = $2
+             AND created_at >= NOW() - make_interval(days => $3)
+             AND is_deleted = FALSE""",
+        guild_id, user_id, days
+    )
+    vc = await get_pool().fetchrow(
+        """SELECT COALESCE(SUM(duration_seconds), 0) as total_seconds
+           FROM vc_sessions
+           WHERE guild_id = $1 AND user_id = $2
+             AND joined_at >= NOW() - make_interval(days => $3)""",
+        guild_id, user_id, days
+    )
+    return {"msg_count": msg["msg_count"], "total_seconds": vc["total_seconds"]}
+
+async def get_user_top_emojis(guild_id, user_id, days=30, limit=8):
+    return await get_pool().fetch(
+        """SELECT emoji_id, emoji_name, COUNT(*) as count
+           FROM emoji_hits
+           WHERE guild_id = $1 AND user_id = $2
+             AND hit_at >= NOW() - make_interval(days => $3)
+           GROUP BY emoji_id, emoji_name
+           ORDER BY count DESC
+           LIMIT $4""",
+        guild_id, user_id, days, limit
+    )
+
+async def get_user_top_stickers(guild_id, user_id, days=30, limit=8):
+    return await get_pool().fetch(
+        """SELECT sticker_id, sticker_name, COUNT(*) as count
+           FROM sticker_hits
+           WHERE guild_id = $1 AND user_id = $2
+             AND hit_at >= NOW() - make_interval(days => $3)
+           GROUP BY sticker_id, sticker_name
+           ORDER BY count DESC
+           LIMIT $4""",
+        guild_id, user_id, days, limit
+    )
+
+async def get_user_top_words(guild_id, user_id, days=30, limit=8):
+    return await get_pool().fetch(
+        """SELECT word, COUNT(*) as count
+           FROM word_hits
+           WHERE guild_id = $1 AND user_id = $2
+             AND hit_at >= NOW() - make_interval(days => $3)
+           GROUP BY word
+           ORDER BY count DESC
+           LIMIT $4""",
+        guild_id, user_id, days, limit
+    )
+
 async def insert_vc_session(guild_id, channel_id, user_id, joined_at, left_at, duration_seconds):
     await get_pool().execute(
         """INSERT INTO vc_sessions (guild_id, channel_id, user_id, joined_at, left_at, duration_seconds)

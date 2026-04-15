@@ -1,10 +1,14 @@
 import io
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.colors as mcolors
+import matplotlib.image as mpimg
 import seaborn as sns
 from bot.charts.renderer import BACKGROUND, ACCENT, ACCENT2, TEXT, TEXT_DIM
+
+BACKGROUNDS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "backgrounds")
 
 DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
@@ -56,13 +60,24 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
     ax.margins(x=0.24)
     ax.tick_params(axis="y", labelsize=10)
     ax.tick_params(axis="x", labelsize=9)
+    ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
 
-def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days):
+def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None):
     FIG_W, FIG_H = 20, 20
     DPI = 150
 
     fig = plt.figure(figsize=(FIG_W, FIG_H), dpi=DPI)
     fig.patch.set_facecolor(BACKGROUND)
+
+    # Custom background image
+    if guild_id is not None:
+        bg_file = os.path.join(BACKGROUNDS_DIR, f"{guild_id}.png")
+        if os.path.exists(bg_file):
+            bg_img = mpimg.imread(bg_file)
+            bg_ax = fig.add_axes([0, 0, 1, 1], zorder=0)
+            bg_ax.imshow(bg_img, aspect="auto", extent=[0, 1, 0, 1],
+                         transform=bg_ax.transAxes, alpha=0.18)
+            bg_ax.axis("off")
 
     gs = gridspec.GridSpec(
         4, 2, figure=fig,
@@ -160,6 +175,6 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
     plt.close(fig)
     return buf
 
-async def server_dashboard(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days):
+async def server_dashboard(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None):
     from bot.charts.renderer import run_in_executor
-    return await run_in_executor(_draw, leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days)
+    return await run_in_executor(_draw, leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id)
