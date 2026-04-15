@@ -16,7 +16,7 @@ class SocialCommands(commands.Cog):
             rows = await queries.get_interactions(interaction.guild_id, days=days)
             if not rows:
                 await interaction.followup.send(
-                    "No interaction data yet — the bot tracks replies and mentions as they happen."
+                    "No interaction data yet - the bot tracks replies and mentions as they happen."
                 )
                 return
 
@@ -39,7 +39,7 @@ class SocialCommands(commands.Cog):
 
             buf = await graph.social_graph(
                 edges=edges,
-                title=f"Social Interaction Graph — Last {days} days",
+                title=f"{interaction.guild.name}  ·  Social Interaction Graph - Last {days} days",
             )
 
             if buf is None:

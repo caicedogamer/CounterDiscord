@@ -68,7 +68,7 @@ class EmojiCommands(commands.Cog):
 
             if not rows:
                 await interaction.followup.send(
-                    f"No data for **{emoji}** yet — send it in chat first then try again."
+                    f"No data for **{emoji}** yet - send it in chat first then try again."
                 )
                 return
 
@@ -90,21 +90,21 @@ class EmojiCommands(commands.Cog):
 
             # Build clean title using name not raw emoji
             if emoji_name:
-                title = f":{emoji_name}: usage — Last {days} days"
+                title = f":{emoji_name}: usage - Last {days} days"
             elif emoji_id and emoji_id.isdigit():
                 guild_emoji = discord.utils.get(interaction.guild.emojis, id=int(emoji_id))
-                title = f":{guild_emoji.name}: usage — Last {days} days" if guild_emoji else f":custom_{emoji_id[-4:]}: usage — Last {days} days"
+                title = f":{guild_emoji.name}: usage - Last {days} days" if guild_emoji else f":custom_{emoji_id[-4:]}: usage - Last {days} days"
             else:
                 try:
                     name = emoji_lib.demojize(emoji_id).strip(":")
-                    title = f":{name}: usage — Last {days} days"
+                    title = f":{name}: usage - Last {days} days"
                 except Exception:
-                    title = f"Emoji usage — Last {days} days"
+                    title = f"Emoji usage - Last {days} days"
 
             buf = await bar.horizontal_bar(
                 labels=labels,
                 values=values,
-                title=title,
+                title=f"{interaction.guild.name}  ·  {title}",
                 xlabel="Times Used",
             )
             await interaction.followup.send(

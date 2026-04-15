@@ -24,7 +24,7 @@ class StickerCommands(commands.Cog):
             buf = await bar.horizontal_bar(
                 labels=labels,
                 values=values,
-                title=f"Top Stickers — Last {days} days",
+                title=f"{interaction.guild.name}  ·  Top Stickers - Last {days} days",
                 xlabel="Times Used",
             )
             await interaction.followup.send(file=discord.File(buf, filename="top_stickers.png"))

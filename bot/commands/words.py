@@ -38,7 +38,7 @@ class WordCommands(commands.Cog):
             buf = await bar.horizontal_bar(
                 labels=labels,
                 values=values,
-                title=f'"{term}" usage — Last {days} days',
+                title=f'{interaction.guild.name}  ·  "{term}" usage - Last {days} days',
                 xlabel="Times Used",
             )
             await interaction.followup.send(

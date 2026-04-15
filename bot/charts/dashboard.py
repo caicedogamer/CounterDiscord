@@ -63,7 +63,7 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
     ax.tick_params(axis="x", labelsize=9)
     ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
 
-def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None):
+def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None, guild_name=None):
     FIG_W, FIG_H = 24, 24
     DPI = 150
 
@@ -149,7 +149,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
     cbar = ax_heat.collections[0].colorbar
     cbar.ax.tick_params(colors=TEXT, labelsize=9)
     cbar.ax.yaxis.label.set_color(TEXT)
-    ax_heat.set_title(f"Activity Heatmap — Last {days} days",
+    ax_heat.set_title(f"Activity Heatmap - Last {days} days",
                   color=TEXT, fontsize=14, fontweight="bold", pad=12,
                   loc="center")
     ax_heat.tick_params(colors=TEXT, labelsize=9)
@@ -176,7 +176,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
 
     # --- Title ---
     fig.suptitle(
-        f"✦  Server Dashboard  ✦  Last {days} Days",
+        f"✦  {guild_name}  ✦  Server Dashboard  -  Last {days} Days" if guild_name else f"✦  Server Dashboard  ✦  Last {days} Days",
         fontsize=20, color=TEXT, y=0.97, fontweight="bold"
     )
 
@@ -186,6 +186,6 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
     plt.close(fig)
     return buf
 
-async def server_dashboard(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None):
+async def server_dashboard(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None, guild_name=None):
     from bot.charts.renderer import run_in_executor
-    return await run_in_executor(_draw, leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id)
+    return await run_in_executor(_draw, leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id, guild_name)

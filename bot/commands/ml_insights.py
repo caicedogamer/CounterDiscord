@@ -15,7 +15,7 @@ class MLInsightsCommands(commands.Cog):
             predictions = await activity.predict_active_members(interaction.guild_id, top_n=10)
             if predictions is None:
                 await interaction.followup.send(
-                    "Not enough data yet to make predictions — need at least 20 users and several days of history."
+                    "Not enough data yet to make predictions - need at least 20 users and several days of history."
                 )
                 return
 
@@ -68,7 +68,7 @@ class MLInsightsCommands(commands.Cog):
             lines = ["**Member Archetypes**\n"]
             for archetype, group in result.groupby("archetype"):
                 icon = icons.get(archetype, "👤")
-                lines.append(f"{icon} **{archetype}** — {len(group)} members")
+                lines.append(f"{icon} **{archetype}** - {len(group)} members")
                 for _, row in group.iterrows():
                     member = interaction.guild.get_member(int(row["user_id"]))
                     if member:
@@ -104,7 +104,7 @@ class MLInsightsCommands(commands.Cog):
             for spike in spikes[:5]:
                 hour = spike["hour"].strftime("%a %b %d, %H:00 UTC")
                 lines.append(
-                    f"📈 `{hour}` — **{spike['message_count']}** messages (z-score: {spike['z_score']:.1f})"
+                    f"📈 `{hour}` - **{spike['message_count']}** messages (z-score: {spike['z_score']:.1f})"
                 )
             await interaction.followup.send("\n".join(lines))
         except Exception as e:
@@ -127,7 +127,7 @@ class MLInsightsCommands(commands.Cog):
                 name = f":{t['emoji_name']}:" if t["emoji_name"] else t["emoji_id"]
                 icon = trend_icons[t["trend"]]
                 lines.append(
-                    f"{icon} **{name}** — {t['trend']} ({t['avg_daily']}/day avg, slope: {t['slope']})"
+                    f"{icon} **{name}** - {t['trend']} ({t['avg_daily']}/day avg, slope: {t['slope']})"
                 )
             await interaction.followup.send("\n".join(lines))
         except Exception as e:

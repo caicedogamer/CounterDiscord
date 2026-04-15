@@ -28,7 +28,7 @@ class ChannelCommands(commands.Cog):
             buf = await bar.horizontal_bar(
                 labels=labels,
                 values=values,
-                title=f"Most Active Channels — Last {days} days",
+                title=f"{interaction.guild.name}  ·  Most Active Channels - Last {days} days",
                 xlabel="Messages",
             )
             await interaction.followup.send(file=discord.File(buf, filename="top_channels.png"))

@@ -1,4 +1,3 @@
-import re
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -46,7 +45,7 @@ class TopEmojiCommands(commands.Cog):
         buf = await bar.horizontal_bar(
             labels=labels,
             values=values,
-            title=f"Top Emojis — Last {days} days",
+            title=f"{interaction.guild.name}  ·  Top Emojis - Last {days} days",
             xlabel="Times Used",
         )
         await interaction.followup.send(file=discord.File(buf, filename="top_emojis.png"))

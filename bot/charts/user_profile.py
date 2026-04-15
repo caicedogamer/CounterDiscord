@@ -70,7 +70,7 @@ def _fmt_emoji(guild, row):
         return str(emoji_id)
 
 
-def _draw(display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, days, guild):
+def _draw(display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, days, guild, guild_name=None):
     fig = plt.figure(figsize=(18, 14), dpi=150)
     fig.patch.set_facecolor(BACKGROUND)
 
@@ -115,7 +115,7 @@ def _draw(display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, 
     vc_str    = f"{hours}h {minutes}m" if total_sec > 0 else "None"
 
     fig.suptitle(
-        f"{display_name}  —  Last {days} Days",
+        f"{display_name}  -  Last {days} Days" + (f"  ·  {guild_name}" if guild_name else ""),
         fontsize=18, color=TEXT, fontweight="bold", y=0.97
     )
     fig.text(
@@ -131,6 +131,6 @@ def _draw(display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, 
     return buf
 
 
-async def user_profile(display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, days, guild):
+async def user_profile(display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, days, guild, guild_name=None):
     from bot.charts.renderer import run_in_executor
-    return await run_in_executor(_draw, display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, days, guild)
+    return await run_in_executor(_draw, display_name, avatar_url, stats, emoji_rows, sticker_rows, word_rows, days, guild, guild_name)

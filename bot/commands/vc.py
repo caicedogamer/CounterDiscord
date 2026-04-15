@@ -33,7 +33,7 @@ class VCCommands(commands.Cog):
         buf = await bar.horizontal_bar(
             labels=labels,
             values=values,
-            title=f"VC Time — Last {days} days",
+            title=f"{interaction.guild.name}  ·  VC Time - Last {days} days",
             xlabel="Hours",
             bar_labels=bar_labels,
         )

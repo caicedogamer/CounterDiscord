@@ -20,7 +20,7 @@ class ActivityCommands(commands.Cog):
 
         buf = await heatmap.activity_heatmap(
             rows=rows,
-            title=f"Activity Heatmap — Last {days} days"
+            title=f"{interaction.guild.name}  ·  Activity Heatmap - Last {days} days"
         )
         await interaction.followup.send(file=discord.File(buf, filename="activity.png"))
 

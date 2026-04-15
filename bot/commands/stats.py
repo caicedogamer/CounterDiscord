@@ -27,7 +27,7 @@ class StatsCommands(commands.Cog):
         buf = await bar.horizontal_bar(
             labels=labels,
             values=counts,
-            title=f"Top Senders — Last {days} days",
+            title=f"{interaction.guild.name}  ·  Top Senders - Last {days} days",
             xlabel="Messages",
         )
         await interaction.followup.send(file=discord.File(buf, filename="leaderboard.png"))
@@ -51,7 +51,7 @@ class StatsCommands(commands.Cog):
         buf = await bar.horizontal_bar(
             labels=labels,
             values=counts,
-            title=f"Least Active Members — Last {days} days",
+            title=f"{interaction.guild.name}  ·  Least Active Members - Last {days} days",
             xlabel="Messages",
         )
         await interaction.followup.send(file=discord.File(buf, filename="least_active.png"))

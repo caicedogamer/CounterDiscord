@@ -9,3 +9,4 @@ bot/ml/models/
 *.joblib
 context/
 bot/data/
+.claude/settings.local.json

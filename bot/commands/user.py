@@ -31,6 +31,7 @@ class UserCommands(commands.Cog):
                 word_rows=word_rows,
                 days=days,
                 guild=interaction.guild,
+                guild_name=interaction.guild.name,
             )
             await interaction.followup.send(file=discord.File(buf, filename="user_profile.png"))
 

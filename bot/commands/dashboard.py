@@ -83,6 +83,7 @@ class DashboardCommands(commands.Cog):
             channel_rows=channel_data,
             days=days,
             guild_id=interaction.guild_id,
+            guild_name=interaction.guild.name,
         )
         await interaction.followup.send(file=discord.File(buf, filename="dashboard.png"))
 
