@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.colors as mcolors
-import matplotlib.image as mpimg
 import seaborn as sns
 from bot.charts.renderer import BACKGROUND, ACCENT, ACCENT2, TEXT, TEXT_DIM
 
@@ -74,10 +73,11 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
     if guild_id is not None:
         bg_file = os.path.join(BACKGROUNDS_DIR, f"{guild_id}.png")
         if os.path.exists(bg_file):
-            bg_img = mpimg.imread(bg_file)
+            from PIL import Image
+            pil_img = Image.open(bg_file).convert("RGBA").resize((FIG_W * DPI, FIG_H * DPI), Image.LANCZOS)
+            bg_img = np.array(pil_img)
             bg_ax = fig.add_axes([0, 0, 1, 1], zorder=0)
-            bg_ax.imshow(bg_img, aspect="auto", extent=[0, 1, 0, 1],
-                         transform=bg_ax.transAxes, alpha=0.18)
+            bg_ax.imshow(bg_img, aspect="auto", alpha=0.18)
             bg_ax.axis("off")
 
     gs = gridspec.GridSpec(
