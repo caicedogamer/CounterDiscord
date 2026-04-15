@@ -12,30 +12,35 @@ A Discord analytics bot that tracks server activity, visualizes stats as charts,
 - **Word tracking** — monitors configurable keywords and phrases
 - **Sticker tracking** — tracks sticker usage per user and server-wide
 - **Social graph** — visualizes who interacts with who via replies and mentions
+- **User profiles** — per-member breakdown of emojis, stickers, words, messages, and VC time
 - **Chart generation** — dark-themed charts rendered with matplotlib/seaborn
 - **ML insights** — activity prediction, behavior clustering, anomaly detection, and emoji trend analysis
+- **Auto-deploy** — GitHub Actions pipeline deploys to server on every push to main
 
 ---
 
 ## Commands
 
+All commands that show lists support a `days` parameter (look-back period, default 30) and a `limit` parameter (number of results, default 10).
+
 ### Stats
 | Command | Description |
 |---|---|
-| `/leaderboard [days]` | Top message senders bar chart |
-| `/least-active [days]` | Members with fewest messages (at least 1) |
+| `/leaderboard [days] [limit]` | Top message senders bar chart |
+| `/least-active [days] [limit]` | Members with fewest messages (at least 1) |
 | `/activity [days]` | Message activity heatmap by day and hour |
-| `/vc-leaderboard [days]` | Most time spent in voice channels |
-| `/top-emojis [days]` | Most used emojis server-wide |
+| `/vc-leaderboard [days] [limit]` | Most time spent in voice channels |
+| `/top-emojis [days] [limit]` | Most used emojis server-wide |
 | `/dashboard [days]` | Full server stats dashboard |
 
 ### Lookup
 | Command | Description |
 |---|---|
-| `/word <term> [days]` | Who uses a word or phrase the most |
-| `/emoji <emoji> [days]` | Who uses a specific emoji the most |
-| `/top-stickers [days]` | Most used stickers server-wide |
-| `/top-channels [days]` | Most active channels in the server |
+| `/user <member> [days]` | Top emojis, stickers, words & stats for a member |
+| `/word <term> [days] [limit]` | Who uses a word or phrase the most |
+| `/emoji <emoji> [days] [limit]` | Who uses a specific emoji the most |
+| `/top-stickers [days] [limit]` | Most used stickers server-wide |
+| `/top-channels [days] [limit]` | Most active channels in the server |
 | `/social-graph [days]` | Network graph of who interacts with who |
 
 ### ML Insights
@@ -52,6 +57,13 @@ A Discord analytics bot that tracks server activity, visualizes stats as charts,
 | `/track-word <word>` | Add a word to the tracking list |
 | `/untrack-word <word>` | Remove a word from the tracking list |
 | `/ignore-channel <channel>` | Stop tracking a channel |
+| `/set-background <image>` | Set a custom background image for the dashboard |
+| `/remove-background` | Remove the custom dashboard background |
+
+### Help
+| Command | Description |
+|---|---|
+| `/help` | List all available commands |
 
 ---
 
@@ -161,6 +173,31 @@ CREATE TABLE user_interactions (
 CREATE INDEX idx_interactions_guild ON user_interactions (guild_id);
 ```
 
+#### Recommended indexes (important for large servers)
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_messages_guild_time
+    ON messages (guild_id, created_at DESC) WHERE is_deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_messages_guild_user
+    ON messages (guild_id, user_id, created_at DESC) WHERE is_deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_messages_guild_channel
+    ON messages (guild_id, channel_id, created_at DESC) WHERE is_deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_emoji_guild_time
+    ON emoji_hits (guild_id, hit_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emoji_guild_id
+    ON emoji_hits (guild_id, emoji_id, hit_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emoji_guild_name
+    ON emoji_hits (guild_id, lower(emoji_name), hit_at DESC);
+CREATE INDEX IF NOT EXISTS idx_word_guild_word
+    ON word_hits (guild_id, word, hit_at DESC);
+CREATE INDEX IF NOT EXISTS idx_vc_guild_time
+    ON vc_sessions (guild_id, joined_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sticker_guild_time
+    ON sticker_hits (guild_id, hit_at DESC);
+CREATE INDEX IF NOT EXISTS idx_interactions_guild_time
+    ON user_interactions (guild_id, hit_at DESC);
+```
+
 ### Running
 
 ```bash
@@ -179,6 +216,7 @@ python -m bot.main
 | Graph | networkx |
 | ML | scikit-learn, pandas, numpy |
 | Model persistence | joblib |
+| HTTP | aiohttp |
 
 ---
 
@@ -191,14 +229,16 @@ bot/
 ├── commands/
 │   ├── activity.py       # /activity heatmap
 │   ├── channels.py       # /top-channels
-│   ├── config.py         # /track-word, /untrack-word, /ignore-channel
+│   ├── config.py         # /track-word, /untrack-word, /ignore-channel, /set-background, /remove-background
 │   ├── dashboard.py      # /dashboard
 │   ├── emojis.py         # /emoji
+│   ├── help.py           # /help
 │   ├── ml_insights.py    # /predict-active, /user-archetypes, /activity-spikes, /emoji-trends
 │   ├── social.py         # /social-graph
 │   ├── stats.py          # /leaderboard, /least-active
 │   ├── stickers.py       # /top-stickers
 │   ├── top_emojis.py     # /top-emojis
+│   ├── user.py           # /user
 │   ├── vc.py             # /vc-leaderboard
 │   └── words.py          # /word
 ├── listeners/
@@ -214,7 +254,10 @@ bot/
 │   ├── line.py           # line chart
 │   ├── heatmap.py        # activity heatmap
 │   ├── graph.py          # social network graph
-│   └── dashboard.py      # multi-panel server dashboard
+│   ├── dashboard.py      # multi-panel server dashboard
+│   └── user_profile.py   # per-member stats chart
+├── data/
+│   └── backgrounds/      # custom dashboard background images (gitignored)
 └── ml/
     ├── features.py        # feature extraction from DB
     ├── activity.py        # activity prediction (RandomForest)
