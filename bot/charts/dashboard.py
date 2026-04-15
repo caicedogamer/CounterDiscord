@@ -47,7 +47,7 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
     n = len(rows)
     cmap = mcolors.LinearSegmentedColormap.from_list("g", [color_start, color_end])
     colors = [cmap(i / max(n - 1, 1)) for i in range(n)]
-    names  = [textwrap.fill(r["name"], width=18) for r in rows]
+    names  = [textwrap.fill(r["name"], width=16) for r in rows]
     counts = [r["count"] for r in rows]
     disp   = [r.get("label", str(r["count"])) for r in rows]
 
@@ -64,7 +64,7 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
     ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
 
 def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, channel_rows, days, guild_id=None):
-    FIG_W, FIG_H = 20, 20
+    FIG_W, FIG_H = 24, 24
     DPI = 150
 
     fig = plt.figure(figsize=(FIG_W, FIG_H), dpi=DPI)
@@ -91,10 +91,10 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
 
     gs = gridspec.GridSpec(
         4, 2, figure=fig,
-        hspace=0.72, wspace=0.35,
+        hspace=0.65, wspace=0.32,
         left=0.05, right=0.95,
-        top=0.91, bottom=0.07,
-        height_ratios=[1.3, 1, 1, 1.2]
+        top=0.92, bottom=0.05,
+        height_ratios=[1.2, 1, 1, 1.1]
     )
 
     ax_heat     = fig.add_subplot(gs[0, :], zorder=2)
