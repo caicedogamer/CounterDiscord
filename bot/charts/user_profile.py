@@ -1,4 +1,5 @@
 import io
+import textwrap
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -33,7 +34,7 @@ def _bar(ax, rows, name_key, count_key, title, xlabel, c_start, c_end, format_na
         ax.axis("off")
         return
 
-    names  = [format_name(r) if format_name else str(r[name_key]) for r in rows]
+    names  = [textwrap.fill(format_name(r) if format_name else str(r[name_key]), width=18) for r in rows]
     counts = [r[count_key] for r in rows]
     n      = len(rows)
     cmap   = mcolors.LinearSegmentedColormap.from_list("g", [c_start, c_end])

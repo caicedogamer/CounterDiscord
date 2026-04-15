@@ -1,4 +1,5 @@
 import io
+import textwrap
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -13,6 +14,7 @@ def _draw(labels, values, title, xlabel, bar_labels=None):
     cmap = mcolors.LinearSegmentedColormap.from_list("glow", [ACCENT2, ACCENT])
     colors = [cmap(i / max(n - 1, 1)) for i in range(n)]
 
+    labels = [textwrap.fill(l, width=20) for l in labels]
     bars = ax.barh(
         labels[::-1], values[::-1],
         color=colors[::-1],

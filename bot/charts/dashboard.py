@@ -1,5 +1,6 @@
 import io
 import os
+import textwrap
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -46,7 +47,7 @@ def _draw_bar_panel(ax, rows, title, xlabel, color_start, color_end):
     n = len(rows)
     cmap = mcolors.LinearSegmentedColormap.from_list("g", [color_start, color_end])
     colors = [cmap(i / max(n - 1, 1)) for i in range(n)]
-    names  = [r["name"] for r in rows]
+    names  = [textwrap.fill(r["name"], width=18) for r in rows]
     counts = [r["count"] for r in rows]
     disp   = [r.get("label", str(r["count"])) for r in rows]
 
