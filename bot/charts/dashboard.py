@@ -17,7 +17,7 @@ MIDNIGHT_CMAP = mcolors.LinearSegmentedColormap.from_list(
     ["#0a0e1a", "#2a0a20", "#6a1048", "#aa1868", "#e03088", "#ff60b0"],
 )
 
-PANEL_BG   = "#0e1525"
+PANEL_BG   = (0.055, 0.082, 0.145, 0.72)   # semi-transparent so bg image shows through
 PANEL_EDGE = "#2a3a5e"
 GRID_COLOR = "#182035"
 
@@ -25,6 +25,7 @@ GRID_COLOR = "#182035"
 def _add_panel(ax, title):
     """Style an axis as a frosted panel."""
     ax.set_facecolor(PANEL_BG)
+    ax.patch.set_alpha(0.72)
     for spine in ax.spines.values():
         spine.set_edgecolor(PANEL_EDGE)
         spine.set_linewidth(1.5)
@@ -85,7 +86,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
             pil_img = pil_img.crop((left, top, left + target_w, top + target_h))
             bg_img = np.array(pil_img)
             bg_ax = fig.add_axes([0, 0, 1, 1], zorder=0)
-            bg_ax.imshow(bg_img, aspect="auto", alpha=0.18)
+            bg_ax.imshow(bg_img, aspect="auto", alpha=0.35)
             bg_ax.axis("off")
 
     gs = gridspec.GridSpec(
@@ -111,6 +112,7 @@ def _draw(leaderboard_rows, heatmap_rows, emoji_rows, vc_rows, sticker_rows, cha
         grid[d][h] = row["msg_count"]
 
     ax_heat.set_facecolor(PANEL_BG)
+    ax_heat.patch.set_alpha(0.72)
     for spine in ax_heat.spines.values():
         spine.set_edgecolor(PANEL_EDGE)
         spine.set_linewidth(1.5)
