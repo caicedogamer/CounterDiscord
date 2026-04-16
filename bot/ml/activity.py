@@ -61,7 +61,7 @@ async def train_activity_model(guild_id: int) -> bool:
     X, y, _ = await _build_training_data(guild_id)
     if X is None:
         return False
-    if len(X) < 20 or y.sum() < 5:
+    if len(X) < 20 or y.sum() < 5 or y.sum() == len(y):
         return False
 
     scaler = StandardScaler()
@@ -95,7 +95,12 @@ async def predict_active_members(guild_id: int, top_n: int = 10):
     X = features_df[FEATURE_COLS].fillna(0).values
     X_scaled = scaler.transform(X)
 
-    probs = model.predict_proba(X_scaled)[:, 1]
+    probs_matrix = model.predict_proba(X_scaled)
+    if probs_matrix.shape[1] < 2:
+        # Model was trained with only one class — delete it so it retrains next time
+        os.remove(model_file)
+        return None
+    probs = probs_matrix[:, 1]
     features_df = features_df.copy()
     features_df["activity_probability"] = probs
 
