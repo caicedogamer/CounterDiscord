@@ -10,4 +10,3 @@ bot/ml/models/
 context/
 bot/data/
 .claude/settings.local.json
-docs/
