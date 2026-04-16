@@ -4,11 +4,26 @@ from discord.ext import commands
 from bot.ml import activity, clusters, anomaly, emoji_trends
 from bot.charts import bar
 
+OWNER_ID = 314533536574996480
+
+def ml_only():
+    async def predicate(interaction: discord.Interaction) -> bool:
+        if interaction.user.id == OWNER_ID:
+            return True
+        if interaction.user.guild_permissions.manage_guild:
+            return True
+        await interaction.response.send_message(
+            "You need the **Manage Server** permission to use ML commands.", ephemeral=True
+        )
+        return False
+    return app_commands.check(predicate)
+
 class MLInsightsCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="predict-active", description="Predict who will be active today")
+    @ml_only()
     async def predict_active(self, interaction: discord.Interaction):
         await interaction.response.defer()
         try:
@@ -49,6 +64,7 @@ class MLInsightsCommands(commands.Cog):
             await interaction.followup.send(f"Something went wrong: `{e}`")
 
     @app_commands.command(name="user-archetypes", description="Cluster server members by behavior")
+    @ml_only()
     async def user_archetypes(self, interaction: discord.Interaction):
         await interaction.response.defer()
         try:
@@ -90,6 +106,7 @@ class MLInsightsCommands(commands.Cog):
             await interaction.followup.send(f"Something went wrong: `{e}`")
 
     @app_commands.command(name="activity-spikes", description="Detect unusual activity spikes")
+    @ml_only()
     async def activity_spikes(self, interaction: discord.Interaction):
         await interaction.response.defer()
         try:
@@ -113,6 +130,7 @@ class MLInsightsCommands(commands.Cog):
             await interaction.followup.send(f"Something went wrong: `{e}`")
 
     @app_commands.command(name="emoji-trends", description="See which emojis are trending")
+    @ml_only()
     async def emoji_trend(self, interaction: discord.Interaction):
         await interaction.response.defer()
         try:
