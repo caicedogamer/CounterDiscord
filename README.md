@@ -1,6 +1,6 @@
 # CounterDiscord
 
-A Discord analytics bot that tracks server activity, visualizes stats as charts, and uses machine learning to surface insights about your community.
+A Discord analytics bot that tracks server activity, visualizes stats as charts, and uses machine learning to surface insights about your community. (Developed by san_facon)
 
 ---
 
